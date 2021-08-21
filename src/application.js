@@ -95,7 +95,7 @@ class Application {
     }
 
     onOpenShareFolder(event, data) {
-        shell.openExternal(path.resolve('./share'))
+        shell.openPath(path.resolve('./share'))
     }
 
     makeShareFolder() {
