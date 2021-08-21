@@ -1,0 +1,66 @@
+hr {
+    margin: 20px 0px;
+}
+
+.container {
+    padding: 10px 20px;
+}
+
+.section {
+    display: flex;
+    margin-bottom: 10px;
+    justify-content:space-between;
+    align-items: center;
+}
+
+.title {
+    font-size:24px;
+    padding: 4px 10px;
+    border-bottom: 1px solid black;
+}
+
+.textServerLog {
+    height:10px;
+    font-size:10px;
+}
+
+
+button#btnServer {
+    width: 100px;
+}
+
+button#btnOpenShareFolder {
+    width:100%
+}
+
+label#lblAddress {
+    margin-right:10px;
+    font-size:20px;
+}
+
+#btnUpload {
+    width:100px;
+    display:flex;
+    flex-direction: row;
+    align-items: center;
+}
+
+#btnUpload[state=ready] {
+    justify-content: center;
+}
+
+#btnUpload[state=uploading] {
+    justify-content: space-between;
+}
+
+#btnUpload[state=ready] > span#spinner {
+    display: none;
+}
+
+#btnUpload[state=uploading] > span#spinner {
+    display: block;
+}
+
+#areaServer {
+    display:none;
+}

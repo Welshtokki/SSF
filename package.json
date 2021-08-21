@@ -1,0 +1,58 @@
+{
+  "name": "ssf",
+  "version": "1.2.1",
+  "description": "Simple Sharing File (Server)",
+  "main": "./src/main.js",
+  "scripts": {
+    "start": "electron .",
+    "clean": "rimraf build && rimraf share",
+    "build": "npm run clean && electron-builder --win --x64",
+    "push": "git push -u origin master"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "electron": "^13.1.8",
+    "electron-builder": "^22.11.7",
+    "electron-reload": "^2.0.0-alpha.1"
+  },
+  "build": {
+    "asar": true,
+    "appId": "com.lge.ssf",
+    "productName": "Simple Sharing File (Server)",
+    "win": {
+      "target": [
+        "zip",
+        "nsis"
+      ],
+      "publish": [
+        {
+          "provider": "generic",
+          "url": "http://10.158.5.19:8060/kyusoo.kim/ssf"
+        }
+      ],
+      "icon": "icon.ico"
+    },
+    "nsis": {
+      "oneClick": false,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "allowToChangeInstallationDirectory": true,
+      "perMachine": true,
+      "installerIcon": "icon.ico",
+      "installerHeaderIcon": "icon.ico"
+    },
+    "directories": {
+      "output": "./build/"
+    }
+  },
+  "dependencies": {
+    "chokidar": "^3.5.2",
+    "ejs": "^3.1.6",
+    "express": "^4.17.1",
+    "express-fileupload": "^1.2.1",
+    "serve-favicon": "^2.5.0",
+    "ws": "^8.2.0"
+  }
+}
