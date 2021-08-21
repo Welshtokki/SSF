@@ -9,8 +9,10 @@
     "build": "npm run clean && electron-builder --win --x64",
     "push": "git push -u origin master"
   },
-  "keywords": [],
-  "author": "",
+  "keywords": [
+    "SSF", "Simple", "Sharing", "File"
+  ],
+  "author": "Welshtokki",
   "license": "ISC",
   "devDependencies": {
     "electron": "^13.1.8",
@@ -19,7 +21,7 @@
   },
   "build": {
     "asar": true,
-    "appId": "com.lge.ssf",
+    "appId": "com.welshtokki.ssf",
     "productName": "Simple Sharing File (Server)",
     "win": {
       "target": [
@@ -29,7 +31,7 @@
       "publish": [
         {
           "provider": "generic",
-          "url": "http://10.158.5.19:8060/kyusoo.kim/ssf"
+          "url": "https://github.com/Welshtokki/SSF.git"
         }
       ],
       "icon": "icon.ico"
