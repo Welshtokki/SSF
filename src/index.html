@@ -1,153 +1,164 @@
 <!DOCTYPE html>
 <html>
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta http-equiv="Content-Security-Policy" content="script-src 'self' 'unsafe-inline';" />
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-KyZXEAg3QhqLMpG8r+8fhAXLRk2vvoC2f3B09zVXn8CA5QIVfZOJ3BCsw2P0p/We" crossorigin="anonymous">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-KyZXEAg3QhqLMpG8r+8fhAXLRk2vvoC2f3B09zVXn8CA5QIVfZOJ3BCsw2P0p/We" crossorigin="anonymous">
     <link href="./index.css" rel="stylesheet" />
-<script>
+    <script>
 
-    const { Config } = require('./config.js')
-    const { IPC } = require('./ipc.js')
+        const { Config } = require('./config.js')
+        const { IPC } = require('./ipc.js')
 
-    let serverEnable = false
-    const mode = Config.product.mode
+        let serverEnable = false
+        const mode = Config.product.mode
 
-    document.addEventListener('DOMContentLoaded', () => {
+        document.addEventListener('DOMContentLoaded', () => {
 
-        if(mode === 'server') {
-            document.getElementById('areaServer').style.display = 'block'
-        }
-
-        btnServer.addEventListener('click', (e) => {
-            toggleBtnServer()
-        })
-
-        btnOpenShareFolder.addEventListener('click', (e) => {
-            IPC.sendToMain('OpenShareFolder')
-        })
-
-        inputAddress.addEventListener('keyup', (e) => {
-            const url = inputAddress.value
-
-            const valid = isValidUrl(url)
-
-            if(valid === true) {
-                inputFile.removeAttribute('disabled')
+            if (mode === 'server') {
+                document.getElementById('areaServer').style.display = 'block'
             }
-            else {
-                inputFile.setAttribute('disabled', 'disabled')
-            }
-        })
 
-        inputFile.addEventListener('change', (e) => {
-            if(e.target.files.length === 0) {
-                btnUpload.setAttribute('disabled', 'disabled')
-            }
-            else {
-                btnUpload.removeAttribute('disabled')
-                formFile.setAttribute('action', inputAddress.value)
-            }
-        })
-
-        btnUpload.addEventListener('click', (event) => {
-            const xhr = new XMLHttpRequest()
-            const formData = new FormData( formFile )
-            const file = inputFile.files[0]
-            const url = formFile.getAttribute('action')
-
-            setUploadState('uploading')
-
-            xhr.open('POST', url)
-            //xhr.setRequestHeader('Content-Type', 'multipart/form-data;')
-
-            xhr.addEventListener('error', e => {
-                alert('Fail to upload file')
-                setUploadState('ready')
+            btnServer.addEventListener('click', (e) => {
+                toggleBtnServer()
             })
 
-            xhr.onload = (e) => {
-                try {
-                    const data = JSON.parse(e.target.response)
-                    if(data?.result === 'OK') {
-                        alert(`Succeed to upload file (${file.name})`)
-                    }
-                    else {
-                        throw new Error('Fail to Upload file')
-                    }
-                } catch(error) {
-                    alert(error)
-                } finally {
-                    setUploadState('ready')
-                }
-            }
+            inputPassword.addEventListener('keyup', (e) => {
+                const password = inputPassword.value
 
-            xhr.send(formData)
+                IPC.sendToMain('Password', password)
+            })
+
+            btnOpenShareFolder.addEventListener('click', (e) => {
+                IPC.sendToMain('OpenShareFolder')
+            })
+
+            inputAddress.addEventListener('keyup', (e) => {
+                const url = inputAddress.value
+
+                const valid = isValidUrl(url)
+
+                if (valid === true) {
+                    inputFile.removeAttribute('disabled')
+                }
+                else {
+                    inputFile.setAttribute('disabled', 'disabled')
+                }
+            })
+
+            inputFile.addEventListener('change', (e) => {
+                if (e.target.files.length === 0) {
+                    btnUpload.setAttribute('disabled', 'disabled')
+                }
+                else {
+                    btnUpload.removeAttribute('disabled')
+                    formFile.setAttribute('action', inputAddress.value)
+                }
+            })
+
+            btnUpload.addEventListener('click', (event) => {
+                const xhr = new XMLHttpRequest()
+                const formData = new FormData(formFile)
+                const file = inputFile.files[0]
+                const url = formFile.getAttribute('action')
+
+                setUploadState('uploading')
+
+                xhr.open('POST', url)
+                //xhr.setRequestHeader('Content-Type', 'multipart/form-data;')
+
+                xhr.addEventListener('error', e => {
+                    alert('Fail to upload file')
+                    setUploadState('ready')
+                })
+
+                xhr.onload = (e) => {
+                    try {
+                        const data = JSON.parse(e.target.response)
+                        if (data?.result === 'OK') {
+                            alert(`Succeed to upload file (${file.name})`)
+                        }
+                        else {
+                            throw new Error('Fail to Upload file')
+                        }
+                    } catch (error) {
+                        alert(error)
+                    } finally {
+                        setUploadState('ready')
+                    }
+                }
+
+                xhr.send(formData)
+            })
+
+            IPC.addRendererReceiver('Log', logHandler)
         })
 
-        IPC.addRendererReceiver('Log', logHandler)
-    })
+        function toggleBtnServer() {
 
-    function toggleBtnServer() {
+            serverEnable = !serverEnable
 
-        serverEnable = !serverEnable
+            if (serverEnable === true) {
+                textServer.textContent = 'Server ON'
+                btnServer.textContent = 'Disable'
+                btnServer.classList.add('btn-outline-secondary')
+                btnServer.classList.remove('btn-outline-primary')
 
-        if(serverEnable === true) {
-            textServer.textContent = 'Server ON'
-            btnServer.textContent = 'Disable'
-            btnServer.classList.add('btn-outline-secondary')
-            btnServer.classList.remove('btn-outline-primary')
+            }
+            else {
+                textServer.textContent = 'Server OFF'
+                btnServer.textContent = 'Enable'
+                btnServer.classList.add('btn-outline-primary')
+                btnServer.classList.remove('btn-outline-secondary')
+            }
 
+            IPC.sendToMain('Server', { 'enable': serverEnable })
         }
-        else {
-            textServer.textContent = 'Server OFF'
-            btnServer.textContent = 'Enable'
-            btnServer.classList.add('btn-outline-primary')
-            btnServer.classList.remove('btn-outline-secondary')
+
+        function logHandler(event, data) {
+
+            console.log(data)
+            if (data.server) {
+                textServerLog.textContent = data.server
+            }
         }
 
-        IPC.sendToMain('Server', {'enable':serverEnable})
-    }
+        function isValidUrl(url) {
+            const pattern = new RegExp('^(http:\\/\\/).+\\/share$')
 
-    function logHandler(event, data) {
-
-        console.log(data)
-        if(data.server) {
-            textServerLog.textContent = data.server
+            return !!pattern.test(url)
         }
-    }
 
-    function isValidUrl(url) {
-        const pattern = new RegExp('^(http:\\/\\/).+\\/share$')
-
-        return !!pattern.test(url)
-    }
-
-    function setUploadState(state) {
-        if(state === 'uploading') {
-            btnUpload.setAttribute('disabled', 'disabled')
-            btnUpload.setAttribute('state', 'uploading')
-            inputAddress.setAttribute('disabled', 'disabled')
-            inputFile.setAttribute('disabled', 'disabled')
+        function setUploadState(state) {
+            if (state === 'uploading') {
+                btnUpload.setAttribute('disabled', 'disabled')
+                btnUpload.setAttribute('state', 'uploading')
+                inputAddress.setAttribute('disabled', 'disabled')
+                inputFile.setAttribute('disabled', 'disabled')
+            }
+            else if (state === 'ready') {
+                btnUpload.setAttribute('state', 'ready')
+                btnUpload.removeAttribute('disabled')
+                inputAddress.removeAttribute('disabled')
+                inputFile.value = ''
+                inputFile.removeAttribute('disabled')
+            }
+            else { }
         }
-        else if(state === 'ready') {
-            btnUpload.setAttribute('state', 'ready')
-            btnUpload.removeAttribute('disabled')
-            inputAddress.removeAttribute('disabled')
-            inputFile.value = ''
-            inputFile.removeAttribute('disabled')
-        }
-        else {}
-    }
 
-</script>
+    </script>
 </head>
+
 <body>
     <div class="container">
         <div id="areaServer">
             <div class="section">
                 <div id="textServer" class="title">Server</div>
+                <input type="password" id="inputPassword" class="form-control" placeholder="Server Password"
+                    maxlength="10" />
                 <button type="button" id="btnServer" class="btn btn-outline-primary">Enable</button>
             </div>
             <div class="section">
@@ -172,7 +183,7 @@
                 <form id="formFile" method="post" enctype='multipart/form-data' action="">
                     <input id="inputFile" type="file" name="upload" class="form-control-file border" disabled />
                 </form>
-                <button id="btnUpload" class="btn btn-outline-primary" state="ready" disabled >
+                <button id="btnUpload" class="btn btn-outline-primary" state="ready" disabled>
                     <span id="spinner" class="spinner-border spinner-border-sm"></span>
                     Upload
                 </button>
@@ -180,4 +191,5 @@
         </div>
     </div>
 </body>
+
 </html>

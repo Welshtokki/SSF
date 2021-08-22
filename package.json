@@ -1,16 +1,21 @@
 {
   "name": "ssf",
-  "version": "1.2.2",
+  "version": "1.3.0",
   "description": "Simple Sharing File (Server)",
   "main": "./src/main.js",
   "scripts": {
     "start": "electron .",
     "clean": "rimraf build && rimraf share",
-    "build": "npm run clean && electron-builder --win --x64",
+    "build": "npm run clean && electron-builder build",
+    "build:win64": "npm run clean && electron-builder --win --x64",
+    "build:osx": "npm run clean && electron-builder --mac",
     "push": "git push -u origin master"
   },
   "keywords": [
-    "SSF", "Simple", "Sharing", "File"
+    "SSF",
+    "Simple",
+    "Sharing",
+    "File"
   ],
   "author": "Welshtokki",
   "license": "ISC",
@@ -23,6 +28,16 @@
     "asar": true,
     "appId": "com.welshtokki.ssf",
     "productName": "Simple Sharing File (Server)",
+    "mac": {
+      "target": [
+        "default"
+      ],
+      "icon": "icon.icns"
+    },
+    "dmg": {
+      "title": "Simple Sharing File (Server)",
+      "icon": "icon.icns"
+    },
     "win": {
       "target": [
         "zip",
