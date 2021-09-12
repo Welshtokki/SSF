@@ -1,4 +1,6 @@
+const fs = require('fs')
 const chokidar = require('chokidar')
+const { Util } = require('./util')
 
 
 class Observer {
@@ -15,7 +17,8 @@ class Observer {
             if (this.server.state === true) {
                 console.log(`Detected : ${filePath}`)
 
-                const data = { Req: 'Reload' }
+                const files = Util.getFilesInDirectory(this.targetPath)
+                const data = { files }
 
                 this.server.webSocket.sendToClients(JSON.stringify(data))
             }

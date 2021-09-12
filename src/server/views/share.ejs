@@ -2,99 +2,53 @@
 <html>
 
 <head>
-    <title>SSF</title>
+    <title>Simple Sharing File</title>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+    <link rel="stylesheet" type="text/css" href="/styles/css/share.css">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/css/bootstrap.min.css" rel="stylesheet"
         integrity="sha384-KyZXEAg3QhqLMpG8r+8fhAXLRk2vvoC2f3B09zVXn8CA5QIVfZOJ3BCsw2P0p/We" crossorigin="anonymous">
-    <title>Simple Sharing File</title>
-    <script>
 
-        document.addEventListener('DOMContentLoaded', () => {
+    <script type="module">
+        import Share from '/scripts/share.js'
 
-            const webSocket = new WebSocket(`ws://${window.location.host}`)
+        const data = '<%- JSON.stringify(data) %>'
+        const props = JSON.parse(data)
+        const share = new Share(document.querySelector('#share'), props)
 
-            webSocket.onopen = () => {
-                document.title = 'SSF - Server ON'
-                console.log('[WS] Connected to Web Socket Server')
-            }
-
-            webSocket.onmessage = event => {
-                console.log(`[WS][MSG] ${event.data}`)
-
-                try {
-
-                    const data = JSON.parse(event.data)
-                    console.log(data)
-
-                    if (data?.Req == 'Reload') {
-                        location.reload()
-                    }
-
-                } catch (error) {
-                    alert(error)
-                }
-            }
-
-            webSocket.onclose = () => {
-                console.log('[WS] WebSocket Disconnected')
-
-                document.title = 'SSF - Server Closed'
-                container.innerHTML = `<h1>Server Closed.</h1>`
-            }
-
-            webSocket.onerror = event => {
-                console.log(event)
-            }
-
-            document.querySelectorAll('a').forEach(a => {
-
-                a.addEventListener('click', e => {
-                    const file = a.getAttribute('file')
-                    const password = inputPassword.value
-                    const url = `share/${file}?password=${password}`
-                    a.setAttribute('href', url)
-                })
-            })
-
-        })
-    </script>
-    <style>
-        .container {
-            padding: 20px;
+        const webSocket = new WebSocket(`ws://${window.location.host}`)
+        webSocket.onopen = () => {
+            document.title = 'SSF - Server ON'
         }
-    </style>
+
+        webSocket.onmessage = event => {
+            console.log(`[WS][MSG] ${event.data}`)
+
+            try {
+                const data = JSON.parse(event.data)
+
+                if (data?.files) {
+                    const files = data.files
+                    share.setState({ files })
+                }
+
+            } catch (error) {
+                alert(error)
+            }
+        }
+
+        webSocket.onclose = () => {
+            document.title = 'SSF - Server Closed'
+            container.innerHTML = '<h1>Server Closed.</h1>'
+        }
+
+    </script>
 </head>
 
 <body>
     <div id="container" class="container">
-        <h2>Simple Sharing File</h2>
-        <h4>
-            <%= host.username %> (<%= host.name %>)
-        </h4>
-        <input type="password" id="inputPassword" class="form-control" placeholder="Server Password" />
-        <hr />
-        <table class="table table-hover">
-            <thead>
-                <tr>
-                    <th>File Name</th>
-                    <th>Size</th>
-                </tr>
-            </thead>
-            <tbody>
-                <% for(let file of files) { %>
-                    <tr>
-                        <td><a file="<%= file.name %>" href="#">
-                                <%= file.name %>
-                            </a></td>
-                        <td><span>
-                                <%=file.size.number%>
-                                    <%=file.size.unit%>
-                            </span></td>
-                    </tr>
-                    <% } %>
-            </tbody>
-        </table>
+
+        <div id="share"></div>
     </div>
 </body>
 

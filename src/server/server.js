@@ -6,13 +6,16 @@ const favicon = require('serve-favicon')
 const fileUpload = require('express-fileupload')
 const { networkInterfaces } = require('os');
 const { WebSocket } = require('./webSocket')
+const { Util } = require('../util')
 
 class Server {
 
     constructor(shareFolderPath) {
         this.app = express()
         this.app.use(fileUpload())
-        this.app.use(favicon(path.resolve(__dirname, 'views', 'favicon.ico')))
+        this.app.use(favicon(path.resolve(__dirname, 'styles', 'icon', 'favicon.ico')))
+        this.app.use('/styles', express.static(path.resolve(__dirname, 'styles')))
+        this.app.use('/scripts', express.static(path.resolve(__dirname, 'scripts')))
         this.app.set('view engine', 'ejs')
         this.app.set('views', path.resolve(__dirname, 'views'))
         this.server = null
@@ -24,9 +27,10 @@ class Server {
     }
 
     openServer() {
-        this.app.get('/', (req, res) => {
-            res.redirect('/share')
-        })
+        this.app
+            .get('/', (req, res) => {
+                res.redirect('/share')
+            })
             .get('/share', (req, res) => {
 
                 const host = {
@@ -34,21 +38,14 @@ class Server {
                     username: os.userInfo().username
                 }
 
-                const fileArray = []
+                const files = Util.getFilesInDirectory(this.sharePath)
 
-                fs.readdirSync(this.sharePath).forEach(file => {
-                    const fStat = fs.statSync(`${this.sharePath}/${file}`)
-                    const sizeInfo = calcFileSize(fStat.size)
-
-                    const fileInfo = {
-                        name: file,
-                        size: sizeInfo
+                res.render('share', {
+                    data: {
+                        host,
+                        files
                     }
-
-                    fileArray.push(fileInfo)
                 })
-
-                res.render('share', { host, files: fileArray })
             })
             .get('/share/:fileName', (req, res) => {
 
